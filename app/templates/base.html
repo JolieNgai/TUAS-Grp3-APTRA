@@ -43,10 +43,31 @@
       {% block content %}{% endblock %}
     </div>
 
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <a href="#home" class="footer-logo-link" aria-label="APTRA home">
+            <img src="{{ url_for('static', filename='images/aptra-logo-dark.png') }}" alt="APTRA" class="footer-logo logo-light">
+            <img src="{{ url_for('static', filename='images/aptra-logo-light.png') }}" alt="APTRA" class="footer-logo logo-dark">
+          </a>
+          <p>Thoughtful email replies, without the blank page.</p>
+        </div>
+
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="#home">Home</a>
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <p class="footer-meta">&copy; <span id="currentYear"></span> APTRA. Write it. Nail the vibe.</p>
+      </div>
+    </footer>
+
     <script>
       const themeToggle = document.getElementById('themeToggle');
       const app = document.getElementById('app');
       const savedTheme = localStorage.getItem('theme') || 'light-mode';
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
       
       app.classList.remove('light-mode', 'dark-mode');
       app.classList.add(savedTheme);
