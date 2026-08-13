@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Prompt App{% endblock %}
+
+{% block content %}
+  <h1>ChatGPT Prompt App</h1>
+
+  <form method="post">
+    <label for="prompt">Enter your prompt</label>
+    <textarea id="prompt" name="prompt" rows="6" placeholder="Ask anything...">{{ prompt }}</textarea>
+    <button type="submit">Send</button>
+  </form>
+
+  {% if result %}
+    <section class="result-box">
+      <h2>Response</h2>
+      <p>{{ result }}</p>
+    </section>
+  {% endif %}
+{% endblock %}
