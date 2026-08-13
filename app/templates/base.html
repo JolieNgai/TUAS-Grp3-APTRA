@@ -3,12 +3,150 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}GPT App{% endblock %}</title>
+    <title>{% block title %}APTRA - Write It. Nail The Vibe.{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   </head>
-  <body>
-    <div class="container">
+  <body id="app" class="light-mode">
+    <canvas class="tic-tac-toe-background" id="ticTacToeBackground" aria-hidden="true"></canvas>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="#home" class="logo-link">
+          <div class="logo">
+            <img src="{{ url_for('static', filename='images/aptra-logo-dark.png') }}" alt="APTRA" class="logo-img logo-light">
+            <img src="{{ url_for('static', filename='images/aptra-logo-light.png') }}" alt="APTRA" class="logo-img logo-dark">
+          </div>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        <div class="nav-right">
+          <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <div class="theme-slider">
+              <div class="slider-circle"></div>
+              <svg class="sun-icon" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              <svg class="moon-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="app-container">
       {% block content %}{% endblock %}
     </div>
+
+    <script>
+      const themeToggle = document.getElementById('themeToggle');
+      const app = document.getElementById('app');
+      const savedTheme = localStorage.getItem('theme') || 'light-mode';
+      
+      app.classList.remove('light-mode', 'dark-mode');
+      app.classList.add(savedTheme);
+      
+      themeToggle.addEventListener('click', () => {
+        if (app.classList.contains('light-mode')) {
+          app.classList.remove('light-mode');
+          app.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark-mode');
+        } else {
+          app.classList.remove('dark-mode');
+          app.classList.add('light-mode');
+          localStorage.setItem('theme', 'light-mode');
+        }
+      });
+
+      const backgroundCanvas = document.getElementById('ticTacToeBackground');
+      const backgroundContext = backgroundCanvas.getContext('2d');
+      const motion = { x: 0.85, y: 0.52, targetX: 0.85, targetY: 0.52 };
+      const drift = { x: 0, y: 0 };
+      let lastFrame = performance.now();
+
+      function resizeBackground() {
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        backgroundCanvas.width = Math.round(window.innerWidth * pixelRatio);
+        backgroundCanvas.height = Math.round(window.innerHeight * pixelRatio);
+        backgroundCanvas.style.width = `${window.innerWidth}px`;
+        backgroundCanvas.style.height = `${window.innerHeight}px`;
+        backgroundContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      }
+
+      function setPointerTarget(clientX, clientY) {
+        if (window.innerWidth < 700) return;
+
+        const awayX = (window.innerWidth / 2) - clientX;
+        const awayY = (window.innerHeight / 2) - clientY;
+        const distance = Math.hypot(awayX, awayY);
+
+        if (distance > 1) {
+          motion.targetX = awayX / distance;
+          motion.targetY = awayY / distance;
+        }
+      }
+
+      function drawBackground(now) {
+        const elapsed = Math.min((now - lastFrame) / 1000, 0.05);
+        lastFrame = now;
+        const isMobile = window.innerWidth < 700;
+        const gridSize = isMobile ? 27 : 36;
+        const movementSpeed = 92;
+
+        if (isMobile) {
+          motion.x = 1;
+          motion.y = 0;
+        } else {
+          motion.x += (motion.targetX - motion.x) * 0.08;
+          motion.y += (motion.targetY - motion.y) * 0.08;
+          const motionLength = Math.hypot(motion.x, motion.y) || 1;
+          motion.x /= motionLength;
+          motion.y /= motionLength;
+        }
+
+        drift.x = (drift.x + (motion.x * movementSpeed * elapsed)) % gridSize;
+        drift.y = (drift.y + (motion.y * movementSpeed * elapsed)) % gridSize;
+
+        backgroundContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        backgroundContext.strokeStyle = getComputedStyle(app).getPropertyValue('--tic-tac-toe-line').trim();
+        backgroundContext.lineWidth = 1.35;
+        backgroundContext.lineCap = 'round';
+
+        const startX = drift.x - gridSize;
+        const startY = drift.y - gridSize;
+        backgroundContext.beginPath();
+
+        for (let x = startX; x <= window.innerWidth + gridSize; x += gridSize) {
+          backgroundContext.moveTo(x, -gridSize);
+          backgroundContext.lineTo(x, window.innerHeight + gridSize);
+        }
+
+        for (let y = startY; y <= window.innerHeight + gridSize; y += gridSize) {
+          backgroundContext.moveTo(-gridSize, y);
+          backgroundContext.lineTo(window.innerWidth + gridSize, y);
+        }
+
+        backgroundContext.stroke();
+
+        requestAnimationFrame(drawBackground);
+      }
+
+      window.addEventListener('resize', resizeBackground);
+      window.addEventListener('pointermove', (event) => setPointerTarget(event.clientX, event.clientY), { passive: true });
+
+      resizeBackground();
+      requestAnimationFrame(drawBackground);
+    </script>
   </body>
 </html>

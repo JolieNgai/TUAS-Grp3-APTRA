@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, request
 
-from app.services.llm_service import LLMService
-
 main = Blueprint("main", __name__)
 
 
@@ -9,14 +7,17 @@ main = Blueprint("main", __name__)
 def index():
     result = None
     prompt = ""
+    tone = ""
+    length = ""
 
     if request.method == "POST":
         prompt = request.form.get("prompt", "").strip()
+        tone = request.form.get("tone", "").strip()
+        length = request.form.get("length", "").strip()
 
-        if prompt:
-            try:
-                result = LLMService().generate_response(prompt)
-            except Exception as exc:
-                result = f"Error: {exc}"
+        if prompt and tone and length:
+            # TODO: Backend will integrate LLM here with tone and length parameters
+            # The LLM should generate a reply to the received email with specified tone and length
+            result = "Backend processing coming soon..."
 
     return render_template("index.html", prompt=prompt, result=result)

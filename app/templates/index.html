@@ -1,20 +1,99 @@
 {% extends 'base.html' %}
 
-{% block title %}Prompt App{% endblock %}
+{% block title %}APTRA - Write It. Nail The Vibe.{% endblock %}
 
 {% block content %}
-  <h1>ChatGPT Prompt App</h1>
+  <section class="hero" id="home">
+    <div class="hero-wrapper">
+      <div class="hero-header">
+        <h1 class="hero-title">Write it.<br>Nail the vibe.</h1>
+        <p class="hero-subtitle">Paste an email and generate the perfect reply in seconds.</p>
+      </div>
 
-  <form method="post">
-    <label for="prompt">Enter your prompt</label>
-    <textarea id="prompt" name="prompt" rows="6" placeholder="Ask anything...">{{ prompt }}</textarea>
-    <button type="submit">Send</button>
-  </form>
+      <div class="hero-form-section">
+        <div class="email-input-box">
+          <form method="post" id="replyForm" class="prompt-form">
+            <div class="form-group">
+              <label for="prompt">Paste Received Email</label>
+              <textarea 
+                id="prompt" 
+                name="prompt" 
+                rows="10" 
+                placeholder="Paste the email you received here..."
+                required
+              >{{ prompt }}</textarea>
+            </div>
+          </form>
+        </div>
 
-  {% if result %}
-    <section class="result-box">
-      <h2>Response</h2>
-      <p>{{ result }}</p>
-    </section>
-  {% endif %}
+        <div class="controls-column">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tone">Tone</label>
+              <select id="tone" name="tone" form="replyForm" required>
+                <option value="">Select a tone</option>
+                <option value="professional">Professional</option>
+                <option value="casual">Casual</option>
+                <option value="friendly">Friendly</option>
+                <option value="formal">Formal</option>
+                <option value="diplomatic">Diplomatic</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="length">Reply Length</label>
+              <select id="length" name="length" form="replyForm" required>
+                <option value="">Select length</option>
+                <option value="short">Short (1-2 sentences)</option>
+                <option value="medium">Medium (3-5 sentences)</option>
+                <option value="long">Long (6+ sentences)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" form="replyForm" class="btn btn-submit btn-generate">Generate Reply</button>
+        </div>
+
+        <div class="email-output-box" id="outputBox">
+          {% if result %}
+            <section class="result-box">
+              <h3>Your Generated Reply</h3>
+              <div class="result-content">{{ result }}</div>
+              <button class="btn btn-copy" onclick="copyToClipboard()">Copy to Clipboard</button>
+            </section>
+          {% else %}
+            <div class="result-placeholder">
+              <p>Paste an email to generate a reply</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const promptTextarea = document.getElementById('prompt');
+    const outputBox = document.getElementById('outputBox');
+    const replyForm = document.getElementById('replyForm');
+
+    function updateOutputBox() {
+      if (promptTextarea.value.trim().length > 0) {
+        outputBox.classList.remove('disabled');
+      } else {
+        outputBox.classList.add('disabled');
+      }
+    }
+
+    promptTextarea.addEventListener('input', updateOutputBox);
+    
+    // Initialize state on page load
+    updateOutputBox();
+
+    function copyToClipboard() {
+      const resultContent = document.querySelector('.result-content').textContent;
+      navigator.clipboard.writeText(resultContent).then(() => {
+        alert('Copied to clipboard!');
+      });
+    }
+  </script>
 {% endblock %}
