@@ -1039,6 +1039,10 @@ body.dark-mode .about-cta:hover {
   border-radius: 1.5rem;
 }
 
+.about-panel .section-kicker {
+  color: #e5c58f;
+}
+
 body.dark-mode .about-panel {
   background: #171717;
   color: var(--text-color);
