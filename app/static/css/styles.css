@@ -61,7 +61,7 @@
   --glass-border: rgba(255, 255, 255, 0.82);
   --glass-shadow: 0 12px 32px rgba(74, 60, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --placeholder-color: rgba(26, 26, 26, 0.48);
-  --composer-box-height: 300px;
+  --composer-box-height: 390px;
   --nav-bg: #f5f1eb;
   --tic-tac-toe-line: rgba(73, 61, 45, 0.12);
   --paper-texture: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/></filter><rect width="512" height="512" fill="%23f5f1eb" filter="url(%23paper)"/></svg>');
@@ -375,9 +375,6 @@ body.dark-mode .btn-submit {
 }
 
 .btn-copy {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
   width: 38px;
   height: 38px;
   display: inline-flex;
@@ -418,8 +415,6 @@ body.dark-mode .btn-copy {
 }
 
 .voice-action {
-  position: absolute;
-  z-index: 4;
   width: 38px;
   height: 38px;
   display: inline-flex;
@@ -457,14 +452,66 @@ body.dark-mode .btn-copy {
   stroke-linejoin: round;
 }
 
-.input-voice {
-  top: 0.75rem;
-  right: 0.75rem;
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  min-height: 38px;
 }
 
-.output-voice {
-  top: 1.25rem;
-  right: 4.25rem;
+.input-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: var(--composer-box-height);
+  min-height: var(--composer-box-height);
+  padding: 0.75rem 1rem 1rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.4rem;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(155%);
+  -webkit-backdrop-filter: blur(22px) saturate(155%);
+}
+
+.input-composer .input-actions {
+  min-height: 35px;
+}
+
+.input-composer .input-actions .voice-action {
+  width: 35px;
+  height: 35px;
+}
+
+.input-composer .input-actions svg {
+  width: 17px;
+  height: 17px;
+}
+
+.form-group .input-composer textarea {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.form-group .input-composer textarea:focus {
+  border: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+body.dark-mode .form-group .input-composer textarea:focus {
+  border: 0;
+  box-shadow: none;
+  transform: none;
 }
 
 /* Hero Section */
@@ -706,16 +753,34 @@ body.dark-mode .form-group select:focus {
 /* Result Box */
 .result-box {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 1.4rem;
-  padding: 2rem;
+  padding: 0.75rem 1rem 1rem;
   height: var(--composer-box-height);
   min-height: var(--composer-box-height);
   overflow-y: auto;
   box-shadow: var(--glass-shadow);
   backdrop-filter: blur(22px) saturate(155%);
   -webkit-backdrop-filter: blur(22px) saturate(155%);
+}
+
+.result-box .output-actions {
+  min-height: 35px;
+}
+
+.result-box .output-actions .voice-action,
+.result-box .output-actions .btn-copy {
+  width: 35px;
+  height: 35px;
+}
+
+.result-box .output-actions svg {
+  width: 17px;
+  height: 17px;
 }
 
 body.dark-mode .result-box {
@@ -823,12 +888,44 @@ body.dark-mode .about-cta:hover {
 }
 
 .result-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   white-space: pre-wrap;
   line-height: 1.8;
   margin: 0;
-  padding: 1rem 6rem 1rem 1rem;
-  background: var(--bg-color);
-  border-radius: 0.5rem;
+  padding: 0;
+}
+
+.form-group .input-composer textarea,
+.result-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 169, 97, 0.72) rgba(201, 169, 97, 0.12);
+}
+
+.form-group .input-composer textarea::-webkit-scrollbar,
+.result-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.form-group .input-composer textarea::-webkit-scrollbar-track,
+.result-content::-webkit-scrollbar-track {
+  background: rgba(201, 169, 97, 0.12);
+  border-radius: 999px;
+}
+
+.form-group .input-composer textarea::-webkit-scrollbar-thumb,
+.result-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #e2cb91, #b9934e);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.form-group .input-composer textarea::-webkit-scrollbar-thumb:hover,
+.result-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #f0dda9, #c9a961);
+  background-clip: padding-box;
 }
 
 /* Features and About */
