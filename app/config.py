@@ -8,7 +8,10 @@ load_dotenv(BASE_DIR / ".env")
 
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    if not SECRET_KEY:
+        raise ValueError("SECRET_KEY must be set in .env and cannot be empty.")
+
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower()
 
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -17,5 +20,9 @@ class Config:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
+    if LLM_PROVIDER == "groq" and not GROQ_API_KEY:
+        raise ValueError("GROQ_API_KEY is required when LLM_PROVIDER=groq")
+
     MAX_TOKENS = int(os.getenv("MAX_TOKENS", "500"))
     TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
+
