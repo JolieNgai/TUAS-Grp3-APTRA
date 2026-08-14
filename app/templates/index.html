@@ -32,11 +32,11 @@
               <label for="tone">Tone</label>
               <select id="tone" name="tone" form="replyForm" required>
                 <option value="">Select a tone</option>
-                <option value="professional">Professional</option>
-                <option value="casual">Casual</option>
-                <option value="friendly">Friendly</option>
-                <option value="formal">Formal</option>
-                <option value="diplomatic">Diplomatic</option>
+                <option value="professional" {% if tone == 'professional' %}selected{% endif %}>Professional</option>
+                <option value="casual" {% if tone == 'casual' %}selected{% endif %}>Casual</option>
+                <option value="friendly" {% if tone == 'friendly' %}selected{% endif %}>Friendly</option>
+                <option value="formal" {% if tone == 'formal' %}selected{% endif %}>Formal</option>
+                <option value="diplomatic" {% if tone == 'diplomatic' %}selected{% endif %}>Diplomatic</option>
               </select>
             </div>
 
@@ -44,9 +44,9 @@
               <label for="length">Reply Length</label>
               <select id="length" name="length" form="replyForm" required>
                 <option value="">Select length</option>
-                <option value="short">Short (1-2 sentences)</option>
-                <option value="medium">Medium (3-5 sentences)</option>
-                <option value="long">Long (6+ sentences)</option>
+                <option value="short" {% if length == 'short' %}selected{% endif %}>Short (1-2 sentences)</option>
+                <option value="medium" {% if length == 'medium' %}selected{% endif %}>Medium (3-5 sentences)</option>
+                <option value="long" {% if length == 'long' %}selected{% endif %}>Long (6+ sentences)</option>
               </select>
             </div>
           </div>
