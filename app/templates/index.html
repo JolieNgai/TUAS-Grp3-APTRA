@@ -6,6 +6,7 @@
   <section class="hero" id="home">
     <div class="hero-wrapper">
       <div class="hero-header">
+        <span class="section-kicker">Try me!</span>
         <h1 class="hero-title">Write it.<br>Nail the vibe.</h1>
         <p class="hero-subtitle">Paste an email and generate the perfect reply in seconds.</p>
       </div>
@@ -14,14 +15,22 @@
         <div class="email-input-box">
           <form method="post" id="replyForm" class="prompt-form">
             <div class="form-group">
-              <label for="prompt">Paste Received Email</label>
-              <textarea 
-                id="prompt" 
-                name="prompt" 
-                rows="10" 
-                placeholder="Paste the email you received here..."
-                required
-              >{{ prompt }}</textarea>
+              <label for="prompt">Input</label>
+              <div class="orbit-border-control">
+                <button class="voice-action input-voice" type="button" data-feature="speech-to-text" aria-label="Start speech to text" title="Speech to text">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="9" y="3" width="6" height="11" rx="3"/>
+                    <path d="M5.5 10.5v.5a6.5 6.5 0 0 0 13 0v-.5M12 17.5V21M8.5 21h7"/>
+                  </svg>
+                </button>
+                <textarea
+                  id="prompt"
+                  name="prompt"
+                  rows="10"
+                  placeholder="Paste the email you received here..."
+                  required
+                >{{ prompt }}</textarea>
+              </div>
             </div>
           </form>
         </div>
@@ -30,24 +39,28 @@
           <div class="form-row">
             <div class="form-group">
               <label for="tone">Tone</label>
-              <select id="tone" name="tone" form="replyForm" required>
-                <option value="">Select a tone</option>
-                <option value="professional">Professional</option>
-                <option value="casual">Casual</option>
-                <option value="friendly">Friendly</option>
-                <option value="formal">Formal</option>
-                <option value="diplomatic">Diplomatic</option>
-              </select>
+              <div class="orbit-border-control">
+                <select id="tone" name="tone" form="replyForm" required>
+                  <option value="">Select a tone</option>
+                  <option value="professional">Professional</option>
+                  <option value="casual">Casual</option>
+                  <option value="friendly">Friendly</option>
+                  <option value="formal">Formal</option>
+                  <option value="diplomatic">Diplomatic</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="length">Reply Length</label>
-              <select id="length" name="length" form="replyForm" required>
-                <option value="">Select length</option>
-                <option value="short">Short (1-2 sentences)</option>
-                <option value="medium">Medium (3-5 sentences)</option>
-                <option value="long">Long (6+ sentences)</option>
-              </select>
+              <div class="orbit-border-control">
+                <select id="length" name="length" form="replyForm" required>
+                  <option value="">Select length</option>
+                  <option value="short">Short (1-2 sentences)</option>
+                  <option value="medium">Medium (3-5 sentences)</option>
+                  <option value="long">Long (6+ sentences)</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -55,11 +68,22 @@
         </div>
 
         <div class="email-output-box" id="outputBox">
+          <span class="output-label">Output</span>
           {% if result %}
             <section class="result-box">
-              <h3>Your Generated Reply</h3>
               <div class="result-content">{{ result }}</div>
-              <button class="btn btn-copy" onclick="copyToClipboard()">Copy to Clipboard</button>
+              <button class="voice-action output-voice" type="button" data-feature="text-to-speech" aria-label="Read reply aloud" title="Text to speech">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 9v6h4l5 4V5L9 9H5Z"/>
+                  <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/>
+                </svg>
+              </button>
+              <button class="btn-copy" type="button" onclick="copyToClipboard()" aria-label="Copy reply to clipboard" title="Copy reply">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="8" y="8" width="11" height="12" rx="2"/>
+                  <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/>
+                </svg>
+              </button>
             </section>
           {% else %}
             <div class="result-placeholder">
