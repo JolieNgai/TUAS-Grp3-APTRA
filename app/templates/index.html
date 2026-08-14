@@ -18,6 +18,12 @@
               <label for="prompt">Input</label>
               <div class="orbit-border-control input-composer">
                 <div class="composer-actions input-actions">
+                  <button class="voice-action input-read" type="button" data-speech-target="prompt" aria-label="Read received email aloud" title="Read received email aloud">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M5 9v6h4l5 4V5L9 9H5Z"/>
+                      <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/>
+                    </svg>
+                  </button>
                   <button class="voice-action input-voice" type="button" data-feature="speech-to-text" aria-label="Start speech to text" title="Speech to text">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <rect x="9" y="3" width="6" height="11" rx="3"/>
@@ -55,11 +61,11 @@
               <div class="orbit-border-control">
                 <select id="tone" name="tone" form="replyForm" required>
                   <option value="">Select a tone</option>
-                  <option value="professional">Professional</option>
-                  <option value="casual">Casual</option>
-                  <option value="friendly">Friendly</option>
-                  <option value="formal">Formal</option>
-                  <option value="diplomatic">Diplomatic</option>
+                  <option value="professional" {% if tone == 'professional' %}selected{% endif %}>Professional</option>
+                  <option value="casual" {% if tone == 'casual' %}selected{% endif %}>Casual</option>
+                  <option value="friendly" {% if tone == 'friendly' %}selected{% endif %}>Friendly</option>
+                  <option value="formal" {% if tone == 'formal' %}selected{% endif %}>Formal</option>
+                  <option value="diplomatic" {% if tone == 'diplomatic' %}selected{% endif %}>Diplomatic</option>
                 </select>
               </div>
             </div>
@@ -69,9 +75,9 @@
               <div class="orbit-border-control">
                 <select id="length" name="length" form="replyForm" required>
                   <option value="">Select length</option>
-                  <option value="short">Short (1-2 sentences)</option>
-                  <option value="medium">Medium (3-5 sentences)</option>
-                  <option value="long">Long (6+ sentences)</option>
+                  <option value="short" {% if length == 'short' %}selected{% endif %}>Short (1-2 sentences)</option>
+                  <option value="medium" {% if length == 'medium' %}selected{% endif %}>Medium (3-5 sentences)</option>
+                  <option value="long" {% if length == 'long' %}selected{% endif %}>Long (6+ sentences)</option>
                 </select>
               </div>
             </div>
@@ -85,7 +91,7 @@
           {% if result %}
             <section class="result-box">
               <div class="composer-actions output-actions">
-                <button class="voice-action output-voice" type="button" data-feature="text-to-speech" aria-label="Read reply aloud" title="Text to speech">
+                <button class="voice-action output-voice" type="button" data-speech-target="resultContent" aria-label="Read reply aloud" title="Read reply aloud">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M5 9v6h4l5 4V5L9 9H5Z"/>
                     <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/>
@@ -98,7 +104,7 @@
                   </svg>
                 </button>
               </div>
-              <div class="result-content">{{ result }}</div>
+              <div class="result-content" id="resultContent">{{ result }}</div>
             </section>
           {% else %}
             <div class="result-placeholder">
@@ -107,6 +113,7 @@
           {% endif %}
         </div>
       </div>
+      <p id="speechStatus" class="speech-status" role="status" aria-live="polite"></p>
     </div>
   </section>
 
@@ -176,6 +183,9 @@
     const promptTextarea = document.getElementById('prompt');
     const outputBox = document.getElementById('outputBox');
     const replyForm = document.getElementById('replyForm');
+    const speechStatus = document.getElementById('speechStatus');
+    const dictationButton = document.querySelector('[data-feature="speech-to-text"]');
+    const speechButtons = document.querySelectorAll('[data-speech-target]');
 
     function updateOutputBox() {
       if (promptTextarea.value.trim().length > 0) {
@@ -196,5 +206,118 @@
         alert('Copied to clipboard!');
       });
     }
+
+    function setSpeechStatus(message) {
+      speechStatus.textContent = message;
+    }
+
+    // Text to speech: use the browser's installed voices and require no audio upload.
+    if ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+      speechButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          if (button.classList.contains('is-active')) {
+            window.speechSynthesis.cancel();
+            button.classList.remove('is-active');
+            button.setAttribute('aria-label', button.classList.contains('output-voice')
+              ? 'Read reply aloud' : 'Read received email aloud');
+            setSpeechStatus('Reading stopped.');
+            return;
+          }
+
+          const resultContent = document.getElementById('resultContent');
+          const text = button.classList.contains('input-read')
+            ? promptTextarea.value.trim()
+            : (resultContent ? resultContent.textContent.trim() : '');
+          if (!text) {
+            setSpeechStatus('There is no text to read aloud yet.');
+            return;
+          }
+
+          window.speechSynthesis.cancel();
+          speechButtons.forEach((item) => item.classList.remove('is-active'));
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = document.documentElement.lang || 'en-US';
+          utterance.onstart = () => {
+            button.classList.add('is-active');
+            button.setAttribute('aria-label', 'Stop reading aloud');
+            setSpeechStatus('Reading text aloud. Select the speaker again to stop.');
+          };
+          const finishSpeaking = () => {
+            button.classList.remove('is-active');
+            button.setAttribute('aria-label', button.classList.contains('output-voice')
+              ? 'Read reply aloud' : 'Read received email aloud');
+            setSpeechStatus('');
+          };
+          utterance.onend = finishSpeaking;
+          utterance.onerror = (event) => {
+            finishSpeaking();
+            if (event.error !== 'canceled' && event.error !== 'interrupted') {
+              setSpeechStatus('Text to speech could not be started.');
+            }
+          };
+          window.speechSynthesis.speak(utterance);
+        });
+      });
+    } else {
+      speechButtons.forEach((button) => {
+        button.disabled = true;
+        button.title = 'Text to speech is not supported by this browser';
+      });
+    }
+
+    // Speech to text: Web Speech API support is currently browser-dependent.
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = document.documentElement.lang || 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      let startingText = '';
+
+      recognition.onstart = () => {
+        startingText = promptTextarea.value.trim();
+        dictationButton.classList.add('is-active');
+        dictationButton.setAttribute('aria-label', 'Stop speech to text');
+        setSpeechStatus('Listening… Speak now. Select the microphone again to stop.');
+      };
+      recognition.onresult = (event) => {
+        let finalText = '';
+        let interimText = '';
+        for (let index = 0; index < event.results.length; index += 1) {
+          const transcript = event.results[index][0].transcript;
+          if (event.results[index].isFinal) finalText += transcript;
+          else interimText += transcript;
+        }
+        promptTextarea.value = [startingText, finalText, interimText]
+          .filter(Boolean).join(startingText ? ' ' : '').trim();
+        promptTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      recognition.onerror = (event) => {
+        const messages = {
+          'not-allowed': 'Microphone access was denied. Allow access and try again.',
+          'no-speech': 'No speech was detected. Please try again.',
+          'audio-capture': 'No microphone was found.'
+        };
+        setSpeechStatus(messages[event.error] || 'Speech recognition stopped unexpectedly.');
+      };
+      recognition.onend = () => {
+        dictationButton.classList.remove('is-active');
+        dictationButton.setAttribute('aria-label', 'Start speech to text');
+        if (speechStatus.textContent.startsWith('Listening')) setSpeechStatus('Dictation stopped.');
+      };
+      dictationButton.addEventListener('click', () => {
+        if (dictationButton.classList.contains('is-active')) recognition.stop();
+        else recognition.start();
+      });
+    } else {
+      dictationButton.disabled = true;
+      dictationButton.title = 'Speech to text is not supported by this browser';
+      setSpeechStatus('Speech to text is unavailable in this browser.');
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    });
   </script>
 {% endblock %}

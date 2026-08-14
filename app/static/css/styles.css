@@ -437,6 +437,19 @@ body.dark-mode .btn-copy {
   transform: scale(1.08);
 }
 
+.voice-action.is-active {
+  color: #fff;
+  background: #b6463a;
+  border-color: #b6463a;
+  box-shadow: 0 0 0 5px rgba(182, 70, 58, 0.16);
+}
+
+.voice-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  transform: none;
+}
+
 .voice-action:focus-visible {
   outline: 2px solid var(--secondary-color);
   outline-offset: 2px;
@@ -512,6 +525,14 @@ body.dark-mode .form-group .input-composer textarea:focus {
   border: 0;
   box-shadow: none;
   transform: none;
+}
+
+.speech-status {
+  min-height: 1.25rem;
+  margin-top: -1rem;
+  color: var(--accent-text-color);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 /* Hero Section */
@@ -1016,6 +1037,10 @@ body.dark-mode .about-cta:hover {
   background: var(--primary-color);
   color: var(--bg-color);
   border-radius: 1.5rem;
+}
+
+.about-panel .section-kicker {
+  color: #e5c58f;
 }
 
 body.dark-mode .about-panel {
