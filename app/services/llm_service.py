@@ -5,7 +5,7 @@ from groq import Groq
 
 class LLMService:
     @staticmethod
-    def build_reply_prompt(email_text: str, tone: str, length: str) -> str:
+    def build_reply_prompt(email_text: str, tone: str, length: str, additional_context: str = "") -> str:
         tone = (tone or "professional").strip().lower()
         length = (length or "medium").strip().lower()
 
@@ -15,11 +15,16 @@ class LLMService:
             "long": "Write a fuller response with more detail, around 6 or more sentences.",
         }.get(length, "Keep the reply clear and professional.")
 
+        context_instruction = ""
+        if additional_context.strip():
+            context_instruction = f"Additional context/instructions from the user:\n{additional_context.strip()}\n\n"
+
         return (
             "Write a reply email based on the received email below. "
             "Use a {tone} tone and adapt the message to the requested email length. "
             "Return only the final email reply text, with no explanations or notes.\n\n"
             "Email to respond to:\n{email}\n\n"
+            "{context_instruction}\n"
             "Tone: {tone}\n"
             "Requested length: {length}\n"
             "Length guidance: {length_guidance}\n"
@@ -28,6 +33,7 @@ class LLMService:
             length=length,
             email=email_text.strip(),
             length_guidance=length_guidance,
+            context_instruction=context_instruction,
         )
 
     def __init__(self):
