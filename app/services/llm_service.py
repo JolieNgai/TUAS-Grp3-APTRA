@@ -1,12 +1,27 @@
 import openai
 from flask import current_app
-from groq import Groq
 
 
 class LLMService:
     @staticmethod
+    def _normalize_tone(tone: str) -> str:
+        tone_map = {
+            "professional": "professional and polished",
+            "casual": "casual and conversational",
+            "friendly": "friendly and warm",
+            "formal": "formal and respectful",
+            "diplomatic": "diplomatic and tactful",
+        }
+        return tone_map.get((tone or "").strip().lower(), "professional and polished")
+
+    @staticmethod
+    def _get_max_tokens(length: str) -> int:
+        token_map = {"short": 25, "medium": 50, "long": 250}
+        return token_map.get((length or "").strip().lower(), 50)
+
+    @staticmethod
     def build_reply_prompt(email_text: str, tone: str, length: str) -> str:
-        tone = (tone or "professional").strip().lower()
+        tone = LLMService._normalize_tone(tone)
         length = (length or "medium").strip().lower()
 
         length_guidance = {
@@ -34,6 +49,8 @@ class LLMService:
         provider = current_app.config.get("LLM_PROVIDER", "groq").lower()
 
         if provider == "groq":
+            from groq import Groq
+
             api_key = current_app.config.get("GROQ_API_KEY")
             if not api_key:
                 raise ValueError("GROQ_API_KEY is not configured.")
@@ -49,18 +66,26 @@ class LLMService:
         self.model = current_app.config.get("OPENAI_MODEL", "gpt-4o-mini")
         self.provider = "openai"
 
-    def generate_response(self, prompt: str) -> str:
+    def generate_response(
+        self, email_text: str, tone: str = "professional", length: str = "medium"
+    ) -> str:
+        prompt = self.build_reply_prompt(email_text, tone, length)
         messages = [
-            {"role": "system", "content": "You are a helpful assistant that drafts email replies."},
+            {
+                "role": "system",
+                "content": "You are an expert email assistant who drafts ready-to-send replies.",
+            },
             {"role": "user", "content": prompt},
         ]
 
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=current_app.config["MAX_TOKENS"],
+            max_tokens=min(
+                self._get_max_tokens(length), current_app.config.get("MAX_TOKENS", 500)
+            ),
             temperature=current_app.config["TEMPERATURE"],
         )
 
-        return response.choices[0].message.content.strip()
-
+        content = response.choices[0].message.content
+        return content.strip() if content else ""

@@ -442,6 +442,19 @@ body.dark-mode .btn-copy {
   transform: scale(1.08);
 }
 
+.voice-action.is-active {
+  color: #fff;
+  background: #b6463a;
+  border-color: #b6463a;
+  box-shadow: 0 0 0 5px rgba(182, 70, 58, 0.16);
+}
+
+.voice-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  transform: none;
+}
+
 .voice-action:focus-visible {
   outline: 2px solid var(--secondary-color);
   outline-offset: 2px;
@@ -462,9 +475,22 @@ body.dark-mode .btn-copy {
   right: 0.75rem;
 }
 
+.input-read {
+  top: 0.75rem;
+  right: 3.75rem;
+}
+
 .output-voice {
   top: 1.25rem;
   right: 4.25rem;
+}
+
+.speech-status {
+  min-height: 1.25rem;
+  margin-top: -1rem;
+  color: var(--accent-text-color);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 /* Hero Section */

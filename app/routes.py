@@ -14,14 +14,13 @@ def index():
 
     if request.method == "POST":
         prompt = request.form.get("prompt", "").strip()
-        tone = request.form.get("tone", "").strip()
-        length = request.form.get("length", "").strip()
+        tone = request.form.get("tone", "").strip().lower()
+        length = request.form.get("length", "").strip().lower()
 
         if prompt and tone and length:
             try:
                 llm_service = LLMService()
-                final_prompt = llm_service.build_reply_prompt(prompt, tone, length)
-                result = llm_service.generate_response(final_prompt)
+                result = llm_service.generate_response(prompt, tone, length)
             except ValueError as exc:
                 result = str(exc)
             except Exception as exc:
