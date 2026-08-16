@@ -11,6 +11,8 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     if not SECRET_KEY:
         raise ValueError("SECRET_KEY must be set in .env and cannot be empty.")
+    
+    DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 
     LLM_PROVIDER = os.getenv("LLM_PROVIDER", "groq").lower()
 
@@ -22,6 +24,9 @@ class Config:
 
     if LLM_PROVIDER == "groq" and not GROQ_API_KEY:
         raise ValueError("GROQ_API_KEY is required when LLM_PROVIDER=groq")
+    
+    if LLM_PROVIDER == "openai" and not OPENAI_API_KEY:
+        raise ValueError("OPENAI_API_KEY is required when LLM_PROVIDER=openai")
 
     MAX_TOKENS = int(os.getenv("MAX_TOKENS", "500"))
     TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))

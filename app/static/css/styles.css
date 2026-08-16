@@ -1220,3 +1220,8 @@ body.dark-mode .about-panel {
     flex-wrap: wrap;
   }
 }
+
+#additional_context {
+  height: 80px !important;
+  min-height: 80px !important;
+}

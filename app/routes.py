@@ -3,6 +3,9 @@ from flask import Blueprint, render_template, request, current_app
 from app.services.llm_service import LLMService
 
 MAX_PROMPT_LENGTH = 10000
+MAX_CONTEXT_LENGTH = 5000
+ALLOWED_TONES = {"professional", "casual", "formal", "friendly", "diplomatic"}
+ALLOWED_LENGTHS = {"short", "medium", "long"}
 
 main = Blueprint("main", __name__)
 
@@ -24,6 +27,14 @@ def index():
         if prompt and tone and length:
             if len(prompt) > MAX_PROMPT_LENGTH:
                 result = f"Input is too long. Please limit your email to {MAX_PROMPT_LENGTH} characters."
+            elif tone.lower() not in ALLOWED_TONES:
+                current_app.logger.warning(f"Invalid tone attempted: {tone}")
+                result = "Invalid tone selected. Please choose a valid option."
+            elif length.lower() not in ALLOWED_LENGTHS:
+                current_app.logger.warning(f"Invalid length attempted: {length}")
+                result = "Invalid length selected. Please choose a valid option."
+            elif len(additional_context) > MAX_CONTEXT_LENGTH:
+                result = f"Additional context is too long. Please limit it to {MAX_CONTEXT_LENGTH} characters."
             else:
                 try:
                     llm_service = LLMService()
