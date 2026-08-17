@@ -374,46 +374,6 @@ body.dark-mode .btn-submit {
   opacity: 0.9;
 }
 
-.btn-copy {
-  width: 38px;
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: var(--glass-bg);
-  color: var(--text-color);
-  border: 1px solid var(--glass-border);
-  border-radius: 50%;
-  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-body.dark-mode .btn-copy {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-color);
-}
-
-.btn-copy:hover {
-  transform: scale(1.08);
-}
-
-.btn-copy:focus-visible {
-  outline: 2px solid var(--secondary-color);
-  outline-offset: 2px;
-}
-
-.btn-copy svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .voice-action {
   width: 38px;
   height: 38px;
@@ -793,8 +753,7 @@ body.dark-mode .form-group select:focus {
   min-height: 35px;
 }
 
-.result-box .output-actions .voice-action,
-.result-box .output-actions .btn-copy {
+.result-box .output-actions .voice-action {
   width: 35px;
   height: 35px;
 }
@@ -816,8 +775,7 @@ body.dark-mode .result-box {
 .orbit-border-control::before,
 .result-placeholder::before,
 .result-box::before,
-.btn::before,
-.btn-copy::before {
+.btn::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -851,8 +809,7 @@ body.dark-mode .result-box {
 .orbit-border-control:hover::before,
 .result-placeholder:hover::before,
 .result-box:hover::before,
-.btn:hover::before,
-.btn-copy:hover::before {
+.btn:hover::before {
   animation: orbit-glass-border 7s linear infinite;
   opacity: 1;
 }
@@ -891,8 +848,7 @@ body.dark-mode .about-cta:hover {
   .orbit-border-control::before,
   .result-placeholder::before,
   .result-box::before,
-  .btn::before,
-  .btn-copy::before {
+  .btn::before {
     animation: none;
   }
 

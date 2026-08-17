@@ -1,7 +1,6 @@
 ---
 name: backend
 description: "Use when building, reviewing, or debugging backend services, APIs, authentication, database logic, security, performance, or server-side integrations. Best for REST/GraphQL APIs, authentication flows, data access layers, business logic, deployment-safe changes, and testing server-side behavior."
-model: GPT-4.1
 ---
 
 # Backend Agent

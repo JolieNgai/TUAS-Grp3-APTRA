@@ -35,6 +35,7 @@ class IndexRouteTest(unittest.TestCase):
         self.assertIn("Generated reply", html)
         self.assertIn('data-speech-target="resultContent"', html)
         self.assertIn('id="resultContent"', html)
+        self.assertIn('id="copyReplyButton"', html)
 
 
 if __name__ == "__main__":

@@ -61,9 +61,7 @@ You are a QA and quality-control specialist focused on preventing regressions an
 - Design test plans for risky or high-impact changes.
 
 ## Example prompts
-- "Write unit tests for the user registration logic and edge cases."
 - "Add integration tests for the payment API flow and failure paths."
 - "Review this feature for regression risks and identify missing tests."
 - "Create a QA checklist for the release candidate."
 - "Validate whether this bug fix has enough regression coverage."
-- "Design test cases for the login workflow, including invalid inputs and timeout behavior."

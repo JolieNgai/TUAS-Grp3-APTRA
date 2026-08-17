@@ -1,11 +1,11 @@
-# Flask GPT Prompt App
+# Flask Groq Email Reply App
 
-A lightweight Flask project framework for building a web app that sends prompts to ChatGPT/OpenAI and renders the response.
+A lightweight Flask web app that uses Groq to draft email replies.
 
 ## Features
 - Flask app factory pattern
 - Environment-based configuration
-- OpenAI GPT integration service
+- Groq integration service
 - HTML form to submit a prompt
 - Simple results page
 - Ready for extension with auth, database, and user management
@@ -28,7 +28,7 @@ A lightweight Flask project framework for building a web app that sends prompts 
    cp .env.example .env
    ```
 
-4. Add your OpenAI API key in `.env`.
+4. Add your Groq API key in `.env` as `GROQ_API_KEY`.
 
 5. Run the app:
    ```bash
@@ -66,7 +66,7 @@ A lightweight Flask project framework for building a web app that sends prompts 
 
 ## Example route
 
-The app includes a home page where a user enters a prompt, and the backend sends it to the configured GPT model.
+The app includes a home page where a user enters an email, and the backend sends a reply-writing prompt to the configured Groq model.
 
 ## Notes
 - Keep your API key in `.env` and do not commit it.

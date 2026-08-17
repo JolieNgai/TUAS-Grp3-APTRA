@@ -1,4 +1,3 @@
-import openai
 from flask import current_app
 from groq import Groq
 
@@ -37,23 +36,11 @@ class LLMService:
         )
 
     def __init__(self):
-        provider = current_app.config.get("LLM_PROVIDER", "groq").lower()
-
-        if provider == "groq":
-            api_key = current_app.config.get("GROQ_API_KEY")
-            if not api_key:
-                raise ValueError("GROQ_API_KEY is not configured.")
-            self.client = Groq(api_key=api_key)
-            self.model = current_app.config.get("GROQ_MODEL", "llama-3.3-70b-versatile")
-            self.provider = "groq"
-            return
-
-        api_key = current_app.config.get("OPENAI_API_KEY")
+        api_key = current_app.config.get("GROQ_API_KEY")
         if not api_key:
-            raise ValueError("OPENAI_API_KEY is not configured.")
-        self.client = openai.OpenAI(api_key=api_key)
-        self.model = current_app.config.get("OPENAI_MODEL", "gpt-4o-mini")
-        self.provider = "openai"
+            raise ValueError("GROQ_API_KEY is not configured.")
+        self.client = Groq(api_key=api_key)
+        self.model = current_app.config.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
     def generate_response(self, prompt: str) -> str:
         messages = [

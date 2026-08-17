@@ -26,30 +26,25 @@ class DummyClient:
 
 
 class LLMServiceTest(unittest.TestCase):
-    def test_generate_response_uses_requested_length_limits(self):
+    def test_generate_response_uses_groq_configuration(self):
         app = Flask(__name__)
         app.config.update(
-            LLM_PROVIDER="openai",
-            OPENAI_API_KEY="test-key",
-            OPENAI_MODEL="gpt-4o-mini",
+            GROQ_API_KEY="test-key",
+            GROQ_MODEL="llama-3.3-70b-versatile",
             MAX_TOKENS=500,
             TEMPERATURE=0.2,
         )
 
         with app.app_context():
-            with patch("openai.OpenAI", return_value=DummyClient()) as mock_openai:
+            with patch("app.services.llm_service.Groq", return_value=DummyClient()) as mock_groq:
                 service = LLMService()
-                service.generate_response("Customer asked for a quote.", "friendly", "short")
-                short_call = mock_openai.return_value.chat.completions.kwargs
-                self.assertEqual(short_call["max_tokens"], 25)
+                response = service.generate_response("Customer asked for a quote.")
 
-                service.generate_response("Customer asked for a quote.", "friendly", "medium")
-                medium_call = mock_openai.return_value.chat.completions.kwargs
-                self.assertEqual(medium_call["max_tokens"], 50)
-
-                service.generate_response("Customer asked for a quote.", "friendly", "long")
-                long_call = mock_openai.return_value.chat.completions.kwargs
-                self.assertEqual(long_call["max_tokens"], 250)
+                call = mock_groq.return_value.chat.completions.kwargs
+                self.assertEqual(call["model"], "llama-3.3-70b-versatile")
+                self.assertEqual(call["max_tokens"], 500)
+                self.assertEqual(call["temperature"], 0.2)
+                self.assertEqual(response, "Polished reply")
 
 
 if __name__ == "__main__":

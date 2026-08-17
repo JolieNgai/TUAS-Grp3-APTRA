@@ -97,7 +97,7 @@
                     <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a7.5 7.5 0 0 1 0 11"/>
                   </svg>
                 </button>
-                <button class="btn-copy" type="button" onclick="copyToClipboard()" aria-label="Copy reply to clipboard" title="Copy reply">
+                <button class="voice-action copy-action" id="copyReplyButton" type="button" aria-label="Copy reply to clipboard" title="Copy reply">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="8" y="8" width="11" height="12" rx="2"/>
                     <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/>
@@ -186,6 +186,7 @@
     const speechStatus = document.getElementById('speechStatus');
     const dictationButton = document.querySelector('[data-feature="speech-to-text"]');
     const speechButtons = document.querySelectorAll('[data-speech-target]');
+    const copyReplyButton = document.getElementById('copyReplyButton');
 
     function updateOutputBox() {
       if (promptTextarea.value.trim().length > 0) {
@@ -200,12 +201,43 @@
     // Initialize state on page load
     updateOutputBox();
 
-    function copyToClipboard() {
-      const resultContent = document.querySelector('.result-content').textContent;
-      navigator.clipboard.writeText(resultContent).then(() => {
-        alert('Copied to clipboard!');
-      });
+    async function copyToClipboard() {
+      const resultContent = document.getElementById('resultContent');
+      const text = resultContent ? resultContent.textContent.trim() : '';
+      if (!text) {
+        setSpeechStatus('There is no reply to copy yet.');
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const textArea = document.createElement('textarea');
+          textArea.value = text;
+          textArea.setAttribute('readonly', '');
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          const copied = document.execCommand('copy');
+          textArea.remove();
+          if (!copied) throw new Error('Copy command was rejected');
+        }
+
+        copyReplyButton.setAttribute('aria-label', 'Reply copied');
+        copyReplyButton.title = 'Copied!';
+        setSpeechStatus('Reply copied to clipboard.');
+        window.setTimeout(() => {
+          copyReplyButton.setAttribute('aria-label', 'Copy reply to clipboard');
+          copyReplyButton.title = 'Copy reply';
+        }, 2000);
+      } catch (error) {
+        setSpeechStatus('Could not copy the reply. Select the text and copy it manually.');
+      }
     }
+
+    if (copyReplyButton) copyReplyButton.addEventListener('click', copyToClipboard);
 
     function setSpeechStatus(message) {
       speechStatus.textContent = message;
