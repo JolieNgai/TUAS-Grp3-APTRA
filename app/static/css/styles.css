@@ -864,15 +864,22 @@ body.dark-mode .about-cta:hover {
   padding-right: 3rem;
 }
 
-.result-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  line-height: 1.8;
-  margin: 0;
+#resultContent {
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-color);
   padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 200px;
+  flex: 1;
+  width: 100%;
 }
+
 
 .form-group .input-composer textarea,
 .result-content {

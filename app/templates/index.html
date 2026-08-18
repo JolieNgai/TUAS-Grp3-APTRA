@@ -104,7 +104,7 @@
                   </svg>
                 </button>
               </div>
-              <div class="result-content" id="resultContent">{{ result }}</div>
+              <textarea class="result-content" id="resultContent">{{ result }}</textarea>
             </section>
           {% else %}
             <div class="result-placeholder">
@@ -203,7 +203,7 @@
 
     async function copyToClipboard() {
       const resultContent = document.getElementById('resultContent');
-      const text = resultContent ? resultContent.textContent.trim() : '';
+      const text = resultContent ? resultContent.value.trim() : '';
       if (!text) {
         setSpeechStatus('There is no reply to copy yet.');
         return;
@@ -259,7 +259,7 @@
           const resultContent = document.getElementById('resultContent');
           const text = button.classList.contains('input-read')
             ? promptTextarea.value.trim()
-            : (resultContent ? resultContent.textContent.trim() : '');
+            : (resultContent ? resultContent.value.trim() : '');
           if (!text) {
             setSpeechStatus('There is no text to read aloud yet.');
             return;
