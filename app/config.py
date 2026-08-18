@@ -14,7 +14,7 @@ class Config:
     DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-    GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+    GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.6-27b")
 
     if not GROQ_API_KEY:
         raise ValueError("GROQ_API_KEY is required")

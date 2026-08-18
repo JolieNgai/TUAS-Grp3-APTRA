@@ -51,7 +51,7 @@ class LLMService:
         if not api_key:
             raise ValueError("GROQ_API_KEY is not configured.")
         self.client = Groq(api_key=api_key)
-        self.model = current_app.config.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+        self.model = current_app.config.get("GROQ_MODEL", "qwen/qwen3.6-27b")
 
     def generate_response(self, prompt: str) -> str:
         messages = [
@@ -105,4 +105,3 @@ class LLMService:
                 cleaned = cleaned[1:closing_quote].strip()
 
         return cleaned
-
