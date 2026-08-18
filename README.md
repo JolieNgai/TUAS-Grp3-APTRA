@@ -40,35 +40,100 @@ A lightweight Flask web app that uses Groq to draft email replies.
    ```
 
 ## Project structure
-
-```text
-.
-├── app/
+```
+TUAS-Grp3-APTRA/
+├── app/                           # Application source code
 │   ├── __init__.py
 │   ├── config.py
 │   ├── routes.py
 │   ├── services/
 │   │   └── llm_service.py
-│   ├── templates/
-│   │   ├── base.html
-│   │   ├── index.html
-│   │   └── result.html
-│   └── static/
-│       └── css/
-│           └── styles.css
-├── .env.example
-├── .gitignore
-├── README.md
-├── requirements.txt
-├── run.py
-└── .env
+│   ├── static/
+│   └── templates/
+│
+├── tests/                         # Test source code
+│   ├── test_llm_service.py       # LLM service unit tests
+│   └── test_routes.py            # Route, integration, and boundary tests
+│
+├── run.py                         # Flask application entry point
+├── run_tests.py                   # Test runner with reporting
+├── requirements.txt               # Python dependencies
+├── .env                           # Environment variables
+├── .env.example                   # Environment template
+└── README.md                       # Main project README
 ```
+## QA/QC Testing
+
+See [DATA_FLOW_ARCHITECTURE.md](DATA_FLOW_ARCHITECTURE.md) for the system data-flow and request-sequence diagrams.
+
+### Running Tests
+
+From Git Bash on Windows, run the full QA/QC suite with the formatted test report:
+
+```bash
+# Run all tests using the project virtual environment
+./.venv/Scripts/python.exe run_tests.py
+
+# Run a specific test category
+./.venv/Scripts/python.exe -m unittest tests.test_llm_service -v
+./.venv/Scripts/python.exe -m unittest tests.test_routes -v
+./.venv/Scripts/python.exe -m unittest tests.test_routes.IndexRouteBoundaryTest -v
+```
+
+The custom runner groups tests by category, marks every test as `PASS`, `FAIL`,
+`ERROR`, or `SKIP`, displays execution times, and prints failure details in a
+separate section. It returns exit code `0` when all tests pass and `1` when the
+suite contains a failure or error, making it suitable for both local QA and CI.
+
+Example successful summary:
+
+```text
+SUMMARY
+========================================================================
+  Total: 46  |  Passed: 46  |  Failed: 0  |  Errors: 0  |  Skipped: 0
+
+RESULT: ALL TESTS PASSED
+```
+
+### Test Coverage
+
+**46 automated tests** covering:
+
+- 19 LLM service prompt-building and response-generation tests
+- Route integration and complete workflow tests
+- 6 boundary tests for the 10,000/5,000-character limits
+- Required-field, whitelist, and case-normalization validation
+- Configuration, generation, and network error handling
+- HTML escaping and UI control hooks
+- AI reasoning suppression and generated-output cleanup
+- Recovery of the completed email draft when a reasoning model exhausts its
+  token budget before emitting its labelled final output
+
+### Test Categories
+
+| Category | Tests | Coverage |
+|----------|-------|----------|
+| LLM Service | 19 | Prompt construction, Groq configuration, and clean reply output |
+| Integration | 4 | Valid form submissions and service interaction |
+| Input Validation | 8 | Tone/length/required fields |
+| Boundary Tests | 6 | Limits at ±1 character |
+| Error Handling | 4 | Safe configuration, API, and network error messages |
+| Features | 3 | End-to-end workflow, output escaping, and special characters |
+| UI Hooks | 2 | Speech controls and preservation of selected options |
+
+### Key Test Scenarios
+
+- **Prompt length:** At 10,000 chars (accept) vs 10,001 chars (reject)
+- **Context length:** At 5,000 chars (accept) vs 5,001 chars (reject)
+- **Tone validation:** All 5 tones accepted (professional, casual, formal, friendly, diplomatic)
+- **Length validation:** All 3 lengths accepted (short, medium, long)
+- **Error handling:** Configuration/API/network errors show generic messages (no details leaked)
+- **Security:** API keys never exposed, form data preserved on error
+- **Output isolation:** The webpage receives only the generated email response, not AI reasoning, checklists, labels, or automated test output
+- **Reasoning models:** Qwen reasoning is disabled for email generation and known reasoning wrappers are removed defensively
+
+---
 
 ## Example route
 
 The app includes a home page where a user enters an email, and the backend sends a reply-writing prompt to the configured Groq model.
-
-## Notes
-- Keep your API key in `.env` and do not commit it.
-- Use a `services` layer to isolate LLM logic from route handlers.
-- Add database models and authentication later if required.
