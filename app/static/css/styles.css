@@ -763,6 +763,21 @@ body.dark-mode .form-group select:focus {
   height: 17px;
 }
 
+.ai-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.5;
+  text-align: center;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  font-style: italic;
+  transition: opacity 0.3s ease;
+}
+
+.ai-disclaimer:hover {
+  opacity: 0.8;
+}
+
 body.dark-mode .result-box {
   box-shadow: var(--glass-shadow);
 }
