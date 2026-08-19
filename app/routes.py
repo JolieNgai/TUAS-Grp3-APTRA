@@ -19,13 +19,18 @@ def index():
     additional_context = ""
 
     if request.method == "POST":
-        prompt = request.form.get("prompt", "").strip()
+        raw_prompt = request.form.get("prompt", "").strip()
         tone = request.form.get("tone", "").strip()
         length = request.form.get("length", "").strip()
-        additional_context = request.form.get("additional_context", "").strip()
+        raw_additional_context = request.form.get("additional_context", "").strip()
+
+        # Preserve exactly what the user entered in the form. LLMService masks
+        # supported identifiers only when constructing the external AI prompt.
+        prompt = raw_prompt
+        additional_context = raw_additional_context
 
         if prompt and tone and length:
-            if len(prompt) > MAX_PROMPT_LENGTH:
+            if len(raw_prompt) > MAX_PROMPT_LENGTH:
                 result = f"Input is too long. Please limit your email to {MAX_PROMPT_LENGTH} characters."
             elif tone.lower() not in ALLOWED_TONES:
                 current_app.logger.warning(f"Invalid tone attempted: {tone}")
@@ -33,7 +38,7 @@ def index():
             elif length.lower() not in ALLOWED_LENGTHS:
                 current_app.logger.warning(f"Invalid length attempted: {length}")
                 result = "Invalid length selected. Please choose a valid option."
-            elif len(additional_context) > MAX_CONTEXT_LENGTH:
+            elif len(raw_additional_context) > MAX_CONTEXT_LENGTH:
                 result = f"Additional context is too long. Please limit it to {MAX_CONTEXT_LENGTH} characters."
             else:
                 try:

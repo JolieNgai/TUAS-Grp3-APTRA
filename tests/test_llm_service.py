@@ -115,6 +115,47 @@ class LLMServiceBuildPromptTest(unittest.TestCase):
         prompt = LLMService.build_reply_prompt("Test", "professional", "unknown_length")
         self.assertIn("clear and professional", prompt)
 
+    def test_build_reply_prompt_masks_private_information_before_api_use(self):
+        prompt = LLMService.build_reply_prompt(
+            "Passport number E1234567, NRIC S1234567D, email anne@example.com, "
+            "phone +65 9123 4567 and card 4111 1111 1111 1111.",
+            "professional",
+            "short",
+            additional_context="Call mobile: 81234567",
+        )
+
+        for private_value in (
+            "E1234567", "S1234567D", "+65 9123 4567",
+            "4111 1111 1111 1111", "81234567",
+        ):
+            self.assertNotIn(private_value, prompt)
+        for placeholder in (
+            "[enter passport number]", "[enter NRIC or FIN]",
+            "[enter phone number]", "[enter payment card number]",
+        ):
+            self.assertIn(placeholder, prompt)
+        self.assertIn("anne@example.com", prompt)
+        self.assertIn("Write the reply normally and answer the email's request", prompt)
+
+    def test_model_placeholder_aliases_are_normalized_for_output(self):
+        content = "Use [PASSPORT_NUMBER], [NRIC_OR_FIN], [PHONE_NUMBER], and [CREDIT_CARD_NUMBER]."
+        self.assertEqual(
+            LLMService.mask_private_information(content),
+            "Use [enter passport number], [enter NRIC or FIN], [enter phone number], "
+            "and [enter credit card number].",
+        )
+
+    def test_labelled_credit_card_is_masked_with_credit_card_placeholder(self):
+        content = "My credit card number is 4111 1111 1111 1111."
+        self.assertEqual(
+            LLMService.mask_private_information(content),
+            "My credit card number [enter credit card number].",
+        )
+
+    def test_masking_does_not_replace_ordinary_numbers(self):
+        content = "The meeting is on 2026-08-20 at room 1234."
+        self.assertEqual(LLMService.mask_private_information(content), content)
+
 
 class LLMServiceGenerationTest(unittest.TestCase):
     """Unit tests for generate_response"""
@@ -158,6 +199,50 @@ class LLMServiceGenerationTest(unittest.TestCase):
                 service = LLMService()
                 response = service.generate_response("Test prompt")
                 self.assertEqual(response, "Spaced reply")
+
+    def test_generate_response_masks_private_information_in_model_output(self):
+        app = Flask(__name__)
+        app.config.update(
+            GROQ_API_KEY="test-key",
+            GROQ_MODEL="qwen/qwen3.6-27b",
+            MAX_TOKENS=500,
+            TEMPERATURE=0.7,
+        )
+        model_reply = "Please use passport number E1234567 and email anne@example.com."
+
+        with app.app_context():
+            with patch("app.services.llm_service.Groq", return_value=DummyClient(model_reply)):
+                response = LLMService().generate_response("Test prompt")
+
+        self.assertNotIn("E1234567", response)
+        self.assertIn("[enter passport number]", response)
+        self.assertIn("anne@example.com", response)
+
+    def test_refusal_is_replaced_with_safe_requested_placeholders(self):
+        prompt = (
+            "Instructions mention [enter credit card number], [enter NRIC or FIN], "
+            "[enter phone number], and [enter payment card number].\n\n"
+            "Email to respond to:\nPlease confirm passport [enter passport number].\n\n"
+            "Tone: professional"
+        )
+        refusal = "I cannot provide personal details via email for security reasons."
+        response = LLMService.ensure_required_placeholders(refusal, prompt)
+
+        self.assertNotIn("cannot provide", response)
+        self.assertIn("[enter passport number]", response)
+        self.assertNotIn("[enter credit card number]", response)
+        self.assertNotIn("[enter NRIC or FIN]", response)
+        self.assertNotIn("[enter phone number]", response)
+        self.assertNotIn("[enter payment card number]", response)
+        self.assertNotIn("Requested information", response)
+
+    def test_no_extra_placeholders_when_reply_contains_input_placeholder(self):
+        prompt = LLMService.build_reply_prompt(
+            "Please confirm passport [enter passport number].", "casual", "short"
+        )
+        reply = "Sure, my passport number is [enter passport number]."
+
+        self.assertEqual(LLMService.ensure_required_placeholders(reply, prompt), reply)
 
     def test_generate_response_removes_reasoning_and_output_wrapper(self):
         leaked_response = (

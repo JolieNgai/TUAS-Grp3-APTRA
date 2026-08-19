@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from app import create_app
+from app.services.llm_service import LLMService
 
 
 class IndexRouteUITest(unittest.TestCase):
@@ -553,6 +554,26 @@ class IndexRouteFeatureTest(unittest.TestCase):
             "Reply &lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt; &amp; safe", html
         )
         self.assertNotIn("<script>alert('xss')</script>", html)
+
+    @patch("app.routes.LLMService")
+    def test_sensitive_input_remains_visible_in_redisplayed_form(self, mock_service):
+        mock_service.return_value.generate_response.return_value = "Safe reply"
+
+        response = self.client.post(
+            "/",
+            data={
+                "prompt": "Passport number E1234567 and NRIC S1234567D",
+                "tone": "professional",
+                "length": "short",
+                "additional_context": "Phone +65 9123 4567, card 4111 1111 1111 1111",
+            },
+        )
+        html = response.get_data(as_text=True)
+
+        for private_value in (
+            "E1234567", "S1234567D", "+65 9123 4567", "4111 1111 1111 1111",
+        ):
+            self.assertIn(private_value, html)
 
 
 if __name__ == "__main__":
